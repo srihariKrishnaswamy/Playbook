@@ -1,38 +1,58 @@
-.App {
+/* App.css */
+
+/* Style for the SVG container */
+.svg-container {
   text-align: center;
+  margin-top: 50px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.svg-drawing-area {
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* App.css */
+
+/* Existing styles... */
+
+/* New style for spacing buttons */
+.button-container {
+  text-align: center;
+  margin-top: 20px;
+  padding: 10px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.button {
+  border-radius: 5px;
+  background: rgb(135, 206, 235);
   color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s, transform 0.2s;
+  outline: none;
+  margin: 0 5px; /* Adds 10px of space between buttons */
 }
 
-.App-link {
-  color: #61dafb;
+.button:hover {
+  background: rgb(100, 170, 200); /* Darken on hover */
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.button:active {
+  transform: scale(0.98); /* Button press effect */
+}
+
+#reset-button {
+  background: rgb(235, 135, 135);
+}
+
+#reset-button:hover {
+  background: rgb(225, 101, 101); /* Darken on hover */
+}
+
+#reset-button:active {
+  transform: scale(0.98); /* Button press effect */
 }
