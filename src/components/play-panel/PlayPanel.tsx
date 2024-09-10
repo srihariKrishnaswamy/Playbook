@@ -11,20 +11,32 @@ function PlayPanel() {
     null
   );
   const [players, setPlayers] = useState<Player[]>([
-    new Player(100, 300),
-    new Player(200, 300),
+    new Player(300, 300),
+    new Player(300, 257),
   ]);
 
   const [speeds, setSpeeds] = useState<number[]>([100, 100]);
   const [strokeColors, setStrokeColors] = useState<string[]>(
     players.map((player) => player.color)
   );
+  const [addPlayerOnClick, setAddPlayerOnClick] = useState<boolean>(false);
 
-  const handleMouseDown = (e: MouseEvent<SVGElement>) => {
+  const addPlayer = (e: MouseEvent<SVGElement>, svg: SVGSVGElement) => {
+    const rect = svg.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+  
+    const newPlayer = new Player(x, y);
+    setPlayers([...players, newPlayer]);
+    setSpeeds([...speeds, 100]);
+    setAddPlayerOnClick(false);
+    setStrokeColors([...strokeColors, newPlayer.color]);
+  
+    console.log("Player added at X: " + x + " Y: " + y);
+  };
+
+  const startDrawingRoute = (e: MouseEvent<SVGElement>, svg: SVGSVGElement) => {
     if (activePlayerIndex === null) return;
-
-    const svg = e.currentTarget.closest("svg");
-    if (!svg) return;
 
     const rect = svg.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -35,6 +47,17 @@ function PlayPanel() {
     const updatedPlayers = [...players];
     updatedPlayers[activePlayerIndex].startDrawing(x, y);
     setPlayers(updatedPlayers);
+  };
+
+  const handleMouseDown = (e: MouseEvent<SVGElement>) => {
+    const svg = e.currentTarget.closest("svg");
+    if (!svg) return;
+
+    if (addPlayerOnClick) {
+      addPlayer(e, svg);
+    } else {
+      startDrawingRoute(e, svg);
+    }
   };
 
   const handleMouseMove = (e: MouseEvent<SVGElement>) => {
@@ -127,11 +150,17 @@ function PlayPanel() {
     setSpeeds(updatedSpeeds);
   };
 
+  const handleAddPlayerButtonClick = (e: MouseEvent) => {
+    e.stopPropagation();
+    setAddPlayerOnClick(true);
+    console.log("adding player")
+  }
+
   return (
     <div className="component-container">
       <div className="play-panel-container">
         <div className="svg-container">
-        <div className="plus-button" >+</div>
+        <div className="plus-button" onClick={(e) => handleAddPlayerButtonClick(e)}>+</div>
           <svg
             width="600"
             height="400"
@@ -146,7 +175,7 @@ function PlayPanel() {
               x2="565"
               y2="245"
               stroke="navy"
-              stroke-width="5"
+              strokeWidth="5"
             />
 
             {players.map((player, index) => (
