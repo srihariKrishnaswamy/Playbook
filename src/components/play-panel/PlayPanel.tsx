@@ -11,8 +11,8 @@ function PlayPanel() {
     null
   );
   const [players, setPlayers] = useState<Player[]>([
-    new Player(300, 300),
     new Player(300, 257),
+    new Player(300, 300),
   ]);
 
   const [speeds, setSpeeds] = useState<number[]>([100, 100]);
@@ -53,6 +53,24 @@ function PlayPanel() {
     const svg = e.currentTarget.closest("svg");
     if (!svg) return;
 
+    const rect = svg.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    // Check if the click is on any player
+    const clickedOnPlayerIndex = players.findIndex((player, index) => {
+      const playerRadius = 10; // radius of player circle
+      const distance = Math.sqrt(
+        (x - player.position.x) ** 2 + (y - player.position.y) ** 2
+      );
+      return distance <= playerRadius;
+    });
+
+    if (clickedOnPlayerIndex !== -1 && clickedOnPlayerIndex !== activePlayerIndex) {
+      return;
+    }
+
+    // If addPlayerOnClick is true, add a player instead of drawing
     if (addPlayerOnClick) {
       addPlayer(e, svg);
     } else {
@@ -93,7 +111,7 @@ function PlayPanel() {
 
   const execute = () => {
     const updatedPlayers = players.map((player, index) => {
-      if (player.path.length > 0) {
+      if (player.path.length > 1) {
         const xKeyframes = player.path.map((point) => point.x);
         const yKeyframes = player.path.map((point) => point.y);
 
@@ -102,6 +120,8 @@ function PlayPanel() {
         const duration = totalDistance / speed;
 
         player.setRouteAnimation(xKeyframes, yKeyframes, duration);
+
+        console.log("Player " + index + "Path: " + player.toString());
       }
       return player;
     });
@@ -244,6 +264,7 @@ function PlayPanel() {
                 onChange={(e) =>
                   handleSpeedChange(index, Number(e.target.value))
                 }
+                className="slider"
               />
               <span>{speeds[index]} px/sec</span>
             </div>

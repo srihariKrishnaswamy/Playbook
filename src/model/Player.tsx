@@ -10,12 +10,11 @@ class Player {
     color: string;
     defaultColor: string = "red";
 
-    constructor(originX: number, originY: number, color: string = "red") {
+    constructor(originX: number, originY: number) {
         this.origin = { x: originX, y: originY };
         this.position = { x: originX, y: originY };
         this.animation = { cx: [originX], cy: [originY], duration: 2 }; // Default duration
         this.path = [];
-        this.color = color; // Initialize with a default color
         this.color = this.defaultColor;
     }
 
