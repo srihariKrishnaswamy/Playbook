@@ -131,6 +131,7 @@ function PlayPanel() {
     <div className="component-container">
       <div className="play-panel-container">
         <div className="svg-container">
+        <div className="plus-button" >+</div>
           <svg
             width="600"
             height="400"
