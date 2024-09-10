@@ -7,12 +7,14 @@ class Player {
     position: Point;
     path: Point[];
     animation: { cx: number[]; cy: number[]; duration: number };
+    color: string; // New color property
 
-    constructor(originX: number, originY: number) {
+    constructor(originX: number, originY: number, color: string = "red") {
         this.origin = { x: originX, y: originY };
         this.position = { x: originX, y: originY };
         this.animation = { cx: [originX], cy: [originY], duration: 2 }; // Default duration
         this.path = [];
+        this.color = color; // Initialize with a default color
     }
 
     startDrawing(x: number, y: number): void {
@@ -58,7 +60,6 @@ class Player {
         };
     }
 
-    // Updated setRouteAnimation to accept duration
     setRouteAnimation(cx: number[], cy: number[], duration: number) {
         this.animation = { cx, cy, duration };
     }

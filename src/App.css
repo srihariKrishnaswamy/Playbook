@@ -20,7 +20,7 @@
 
 .button {
   border-radius: 5px;
-  background: rgb(135, 206, 235);
+  background: rgb(25, 49, 59);
   color: white;
   border: none;
   padding: 10px 20px;
@@ -33,7 +33,7 @@
 }
 
 .button:hover {
-  background: rgb(100, 170, 200); /* Darken on hover */
+  background: rgb(25, 57, 71); /* Darken on hover */
 }
 
 .button:active {
@@ -41,7 +41,7 @@
 }
 
 #reset-button {
-  background: rgb(235, 135, 135);
+  background: rgb(140, 28, 28);
 }
 
 #reset-button:hover {

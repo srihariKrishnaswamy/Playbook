@@ -15,10 +15,11 @@ function PlayPanel() {
     new Player(200, 300),
   ]);
 
-  // Add speed control for each player (default speed = 1)
-  const [speeds, setSpeeds] = useState<number[]>([100, 100]); // Speed in pixels per second
+  const [speeds, setSpeeds] = useState<number[]>([100, 100]); // Speed for each player
+  const [strokeColors, setStrokeColors] = useState<string[]>(
+    new Array(players.length).fill("red")
+  ); // Initialize stroke color for each player
 
-  // Function to handle starting the drawing
   const handleMouseDown = (e: MouseEvent<SVGElement>) => {
     if (activePlayerIndex === null) return;
 
@@ -32,12 +33,10 @@ function PlayPanel() {
     setIsMouseDown(true);
 
     const updatedPlayers = [...players];
-    updatedPlayers[activePlayerIndex].path = [{ x, y }]; // Start a new path for the active player
+    updatedPlayers[activePlayerIndex].startDrawing(x, y); // Start a new path for the active player
     setPlayers(updatedPlayers);
-    console.log("Drawing route for player: " + activePlayerIndex);
   };
 
-  // Function to handle mouse movements while drawing
   const handleMouseMove = (e: MouseEvent<SVGElement>) => {
     if (!isMouseDown || activePlayerIndex === null) return;
 
@@ -51,54 +50,41 @@ function PlayPanel() {
     const updatedPlayers = [...players];
     updatedPlayers[activePlayerIndex].addPoint(x, y); // Add points to the active player's path
     setPlayers(updatedPlayers);
-    console.log("Updating route for player: " + activePlayerIndex);
   };
 
-  // Function to stop drawing
   const handleMouseUp = () => {
     setIsMouseDown(false);
     if (activePlayerIndex !== null) {
       const updatedPlayers = [...players];
       updatedPlayers[activePlayerIndex].finishDrawing(); // Mark path as finished
       setPlayers(updatedPlayers);
-      console.log("Finished route for player: " + activePlayerIndex);
       setActivePlayerIndex(null);
     }
   };
 
-  // Function to smoothly move through all points without pausing
+  const handleDoubleClick = (index: number) => {
+    const updatedColors = [...strokeColors];
+    updatedColors[index] = "darkred"; // Change the stroke color to dark red on double-click
+    setStrokeColors(updatedColors);
+  };
+
   const execute = () => {
     const updatedPlayers = players.map((player, index) => {
-      console.log("Player " + index + " path: " + player.toString());
       if (player.path.length > 0) {
         const xKeyframes = player.path.map((point) => point.x);
         const yKeyframes = player.path.map((point) => point.y);
 
-        // Calculate total path distance
         const totalDistance = calculateTotalDistance(player.path);
-
-        // Get the user's chosen speed (pixels per second)
         const speed = speeds[index];
-
-        // Calculate duration based on total distance and speed
         const duration = totalDistance / speed;
 
-        // Pass the duration and keyframes to the player
         player.setRouteAnimation(xKeyframes, yKeyframes, duration);
-        console.log(
-          "Running route for player: " +
-            index +
-            " with speed: " +
-            speed +
-            " px/sec"
-        );
       }
       return player;
     });
     setPlayers(updatedPlayers);
   };
 
-  // Function to calculate total distance of a path
   const calculateTotalDistance = (path: Point[]): number => {
     let totalDistance = 0;
     for (let i = 1; i < path.length; i++) {
@@ -106,24 +92,21 @@ function PlayPanel() {
       const dy = path[i].y - path[i - 1].y;
       totalDistance += Math.sqrt(dx * dx + dy * dy);
     }
-    console.log("This is total distance" + totalDistance);
     return totalDistance;
   };
 
-  // Function to generate the path 'd' attribute for each player's SVG path element
-  const generatePathD = (player: Player): string => {
-    if (player.path.length === 0) return "";
-
-    const [start, ...points] = player.path;
-    return `M${start.x},${start.y} ${points
-      .map((point) => `L${point.x},${point.y}`)
-      .join(" ")}`;
-  };
-
-  // Update the reset function to animate players back to their origin
   const resetState = () => {
     const resetPlayers = players.map((player) => {
-      player.resetState();
+      // Move player back to origin without clearing the path
+      player.setRouteAnimation([player.origin.x], [player.origin.y], 1); // Reset animation back to origin points
+      return player;
+    });
+    setPlayers(resetPlayers);
+  };
+
+  const completeReset = () => {
+    const resetPlayers = players.map((player) => {
+      player.resetState(); // Clear path and move player to origin
       player.setRouteAnimation([player.origin.x], [player.origin.y], 1); // Reset animation back to origin points
       return player;
     });
@@ -133,10 +116,8 @@ function PlayPanel() {
   const selectPlayer = (e: MouseEvent, index: number) => {
     e.stopPropagation();
     setActivePlayerIndex(index);
-    console.log("Active player: " + index);
   };
 
-  // Function to handle speed change for each player
   const handleSpeedChange = (index: number, newSpeed: number) => {
     const updatedSpeeds = [...speeds];
     updatedSpeeds[index] = newSpeed;
@@ -155,18 +136,15 @@ function PlayPanel() {
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
           >
-            {/* Render the paths for all players */}
             {players.map((player, index) => (
               <path
                 key={`path-${index}`}
-                d={generatePathD(player)}
-                stroke="red"
-                strokeWidth="2"
+                d={player.getPathD()}
+                stroke={strokeColors[index]}
+                strokeWidth="4"
                 fill="none"
               />
             ))}
-
-            {/* Render all players */}
             {players.map((player, index) => (
               <motion.circle
                 key={index}
@@ -174,17 +152,16 @@ function PlayPanel() {
                 cy={player.position.y}
                 r="10"
                 fill={
-                  index === activePlayerIndex
-                    ? "rgb(140, 140, 140)"
-                    : "rgb(0, 0, 0)"
+                  index === activePlayerIndex ? "rgb(140, 140, 140)" : "black"
                 }
                 onClick={(e) => selectPlayer(e, index)}
+                onDoubleClick={() => handleDoubleClick(index)}
                 animate={{
                   cx: player.animation.cx,
                   cy: player.animation.cy,
                 }}
                 transition={{
-                  duration: player.animation.duration || 1, // Set dynamic duration
+                  duration: player.animation.duration || 1,
                   ease: "linear",
                 }}
               />
