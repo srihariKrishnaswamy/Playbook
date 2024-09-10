@@ -7,7 +7,7 @@ class Player {
     position: Point;
     path: Point[];
     animation: { cx: number[]; cy: number[]; duration: number };
-    color: string; 
+    color: string;
     defaultColor: string = "red";
 
     constructor(originX: number, originY: number, color: string = "red") {
@@ -28,7 +28,9 @@ class Player {
     }
 
     finishDrawing(): void {
-        this.simplifyAndStraightenPath();
+        if (this.path.length > 1) {
+            this.simplifyAndStraightenPath();
+        }
     }
 
     private simplifyAndStraightenPath(): void {
@@ -70,7 +72,7 @@ class Player {
         this.position = { x: this.origin.x, y: this.origin.y };
         this.path = [];
         this.animation = { cx: [this.origin.x], cy: [this.origin.y], duration: 1 }; // Reset animation with default duration
-        this.color = this.defaultColor; 
+        this.color = this.defaultColor;
     }
 
     toString(): string {

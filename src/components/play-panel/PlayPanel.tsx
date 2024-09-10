@@ -25,13 +25,13 @@ function PlayPanel() {
     const rect = svg.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-  
+
     const newPlayer = new Player(x, y);
     setPlayers([...players, newPlayer]);
     setSpeeds([...speeds, 100]);
     setAddPlayerOnClick(false);
     setStrokeColors([...strokeColors, newPlayer.color]);
-  
+
     console.log("Player added at X: " + x + " Y: " + y);
   };
 
@@ -153,14 +153,20 @@ function PlayPanel() {
   const handleAddPlayerButtonClick = (e: MouseEvent) => {
     e.stopPropagation();
     setAddPlayerOnClick(true);
-    console.log("adding player")
-  }
+    console.log("adding player");
+  };
 
   return (
     <div className="component-container">
       <div className="play-panel-container">
         <div className="svg-container">
-        <div className="plus-button" onClick={(e) => handleAddPlayerButtonClick(e)}>+</div>
+          <div
+            className="plus-button"
+            onClick={(e) => handleAddPlayerButtonClick(e)}
+          >
+            +
+          </div>
+          {addPlayerOnClick && <div className="overlay"></div>}
           <svg
             width="600"
             height="400"
@@ -193,15 +199,14 @@ function PlayPanel() {
                 cx={player.position.x}
                 cy={player.position.y}
                 r="10"
-                fill={
-                  index === activePlayerIndex ? "rgb(140, 140, 140)" : "black"
-                }
+                fill={index === activePlayerIndex ? "yellow" : "black"}
                 onClick={(e) => selectPlayer(e, index)}
                 onDoubleClick={() => handleDoubleClick(index)}
                 animate={{
                   cx: player.animation.cx,
                   cy: player.animation.cy,
                 }}
+                className="player-circle"
                 transition={{
                   duration: player.animation.duration || 1,
                   ease: "linear",
