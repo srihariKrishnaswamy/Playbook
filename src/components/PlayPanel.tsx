@@ -6,13 +6,14 @@ import "../App.css";
 
 function PlayPanel() {
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
-  const [activePlayerIndex, setActivePlayerIndex] = useState<number | null>(
-    null
-  ); // Ensure activePlayerIndex is nullable
+  const [activePlayerIndex, setActivePlayerIndex] = useState<number | null>(null);
   const [players, setPlayers] = useState<Player[]>([
     new Player(100, 300),
-    new Player(200, 300)
+    new Player(200, 300),
   ]);
+
+  // Add speed control for each player (default speed = 1)
+  const [speeds, setSpeeds] = useState<number[]>([100, 100]); // Speed in pixels per second
 
   // Function to handle starting the drawing
   const handleMouseDown = (e: MouseEvent<SVGElement>) => {
@@ -30,7 +31,7 @@ function PlayPanel() {
     const updatedPlayers = [...players];
     updatedPlayers[activePlayerIndex].path = [{ x, y }]; // Start a new path for the active player
     setPlayers(updatedPlayers);
-    console.log("Drawing route for player: " + activePlayerIndex)
+    console.log("Drawing route for player: " + activePlayerIndex);
   };
 
   // Function to handle mouse movements while drawing
@@ -47,7 +48,7 @@ function PlayPanel() {
     const updatedPlayers = [...players];
     updatedPlayers[activePlayerIndex].addPoint(x, y); // Add points to the active player's path
     setPlayers(updatedPlayers);
-    console.log("Updating route for player: " + activePlayerIndex)
+    console.log("Updating route for player: " + activePlayerIndex);
   };
 
   // Function to stop drawing
@@ -57,7 +58,7 @@ function PlayPanel() {
       const updatedPlayers = [...players];
       updatedPlayers[activePlayerIndex].finishDrawing(); // Mark path as finished
       setPlayers(updatedPlayers);
-      console.log("Finished route for player: " + activePlayerIndex)
+      console.log("Finished route for player: " + activePlayerIndex);
       setActivePlayerIndex(null);
     }
   };
@@ -69,12 +70,34 @@ function PlayPanel() {
       if (player.path.length > 0) {
         const xKeyframes = player.path.map((point) => point.x);
         const yKeyframes = player.path.map((point) => point.y);
-        player.setRouteAnimation(xKeyframes, yKeyframes);
-        console.log("Running route for player: " + index);
+
+        // Calculate total path distance
+        const totalDistance = calculateTotalDistance(player.path);
+
+        // Calculate duration based on speed (pixels per second)
+        const speed = speeds[index];
+        const duration = totalDistance / speed;
+
+        player.setRouteAnimation(xKeyframes, yKeyframes, duration); // Pass the calculated duration
+        console.log(
+          "Running route for player: " + index + " with speed: " + speeds[index]
+        );
       }
       return player;
     });
     setPlayers(updatedPlayers);
+  };
+
+  // Function to calculate total distance of a path
+  const calculateTotalDistance = (path: Point[]): number => {
+    let totalDistance = 0;
+    for (let i = 1; i < path.length; i++) {
+      const dx = path[i].x - path[i - 1].x;
+      const dy = path[i].y - path[i - 1].y;
+      totalDistance += Math.sqrt(dx * dx + dy * dy);
+    }
+    console.log("This is total distance" + totalDistance);
+    return totalDistance;
   };
 
   // Function to generate the path 'd' attribute for each player's SVG path element
@@ -91,17 +114,24 @@ function PlayPanel() {
   const resetState = () => {
     const resetPlayers = players.map((player) => {
       player.resetState();
-      player.setRouteAnimation([player.origin.x], [player.origin.y]); // Set animation back to the origin points
+      player.setRouteAnimation([player.origin.x], [player.origin.y], 1); // Reset animation back to origin points
       return player;
     });
     setPlayers(resetPlayers);
   };
 
-  const selectPlayer = (e : MouseEvent, index: number) => {
-    e.stopPropagation(); 
+  const selectPlayer = (e: MouseEvent, index: number) => {
+    e.stopPropagation();
     setActivePlayerIndex(index);
-    console.log("active player: " + index);
-  }
+    console.log("Active player: " + index);
+  };
+
+  // Function to handle speed change for each player
+  const handleSpeedChange = (index: number, newSpeed: number) => {
+    const updatedSpeeds = [...speeds];
+    updatedSpeeds[index] = newSpeed;
+    setSpeeds(updatedSpeeds);
+  };
 
   return (
     <div>
@@ -133,9 +163,7 @@ function PlayPanel() {
               cy={player.position.y}
               r="10"
               fill={
-                index === activePlayerIndex
-                  ? "rgb(140, 140, 140)"
-                  : "rgb(0, 0, 0)"
+                index === activePlayerIndex ? "rgb(140, 140, 140)" : "rgb(0, 0, 0)"
               }
               onClick={(e) => selectPlayer(e, index)}
               animate={{
@@ -143,7 +171,7 @@ function PlayPanel() {
                 cy: player.animation.cy,
               }}
               transition={{
-                duration: 1, // Set duration for reset animation
+                duration: player.animation.duration || 1, // Set dynamic duration
                 ease: "linear",
               }}
             />
@@ -158,6 +186,23 @@ function PlayPanel() {
         <button onClick={resetState} className="button" id="reset-button">
           Reset
         </button>
+      </div>
+
+      <div className="speed-controls">
+        {players.map((_, index) => (
+          <div key={index}>
+            <label>Player {index + 1} Speed: </label>
+            <input
+              type="range"
+              min="50"
+              max="300"
+              step="10"
+              value={speeds[index]}
+              onChange={(e) => handleSpeedChange(index, Number(e.target.value))}
+            />
+            <span>{speeds[index]} px/sec</span>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -6,12 +6,12 @@ class Player {
     origin: Point;
     position: Point;
     path: Point[];
-    animation: {cx: number[], cy: number[]};
+    animation: { cx: number[]; cy: number[]; duration: number };
 
     constructor(originX: number, originY: number) {
         this.origin = { x: originX, y: originY };
         this.position = { x: originX, y: originY };
-        this.animation = { cx: [originX], cy: [originY] };
+        this.animation = { cx: [originX], cy: [originY], duration: 1 }; // Default duration
         this.path = [];
     }
 
@@ -58,23 +58,24 @@ class Player {
         };
     }
 
-    setRouteAnimation(cx: number[], cy: number[]) {
-        this.animation = {cx: cx, cy: cy};
+    // Updated setRouteAnimation to accept duration
+    setRouteAnimation(cx: number[], cy: number[], duration: number): void {
+        this.animation = { cx: cx, cy: cy, duration: duration };
     }
 
     resetState(): void {
         this.position = { x: this.origin.x, y: this.origin.y };
         this.path = [];
+        this.animation = { cx: [this.origin.x], cy: [this.origin.y], duration: 1 }; // Reset animation with default duration
     }
 
     toString(): string {
-        let res : string = "";
+        let res: string = "";
         for (const point of this.path) {
-            res += `${point.x}, ${point.y} |`
+            res += `${point.x}, ${point.y} | `;
         }
         return res;
     }
-
 }
 
 export default Player;
