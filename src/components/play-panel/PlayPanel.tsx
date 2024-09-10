@@ -1,12 +1,15 @@
 import React, { useState, MouseEvent } from "react";
 import { motion } from "framer-motion";
-import { Point } from "../model/Point";
-import Player from "../model/Player";
-import "../App.css";
+import { Point } from "../../model/Point";
+import Player from "../../model/Player";
+import "../../App.css";
+import "./PlayPanel.css";
 
 function PlayPanel() {
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
-  const [activePlayerIndex, setActivePlayerIndex] = useState<number | null>(null);
+  const [activePlayerIndex, setActivePlayerIndex] = useState<number | null>(
+    null
+  );
   const [players, setPlayers] = useState<Player[]>([
     new Player(100, 300),
     new Player(200, 300),
@@ -70,16 +73,16 @@ function PlayPanel() {
       if (player.path.length > 0) {
         const xKeyframes = player.path.map((point) => point.x);
         const yKeyframes = player.path.map((point) => point.y);
-  
+
         // Calculate total path distance
         const totalDistance = calculateTotalDistance(player.path);
-  
+
         // Get the user's chosen speed (pixels per second)
         const speed = speeds[index];
-  
+
         // Calculate duration based on total distance and speed
         const duration = totalDistance / speed;
-  
+
         // Pass the duration and keyframes to the player
         player.setRouteAnimation(xKeyframes, yKeyframes, duration);
         console.log(
@@ -141,75 +144,80 @@ function PlayPanel() {
   };
 
   return (
-    <div>
-      <div className="svg-container">
-        <svg
-          width="400"
-          height="400"
-          className="svg-drawing-area"
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-        >
-          {/* Render the paths for all players */}
-          {players.map((player, index) => (
-            <path
-              key={`path-${index}`}
-              d={generatePathD(player)}
-              stroke="red"
-              strokeWidth="2"
-              fill="none"
-            />
-          ))}
+    <div className="component-container">
+      <div className="play-panel-container">
+        <div className="svg-container">
+          <svg
+            width="400"
+            height="400"
+            className="svg-drawing-area"
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+          >
+            {/* Render the paths for all players */}
+            {players.map((player, index) => (
+              <path
+                key={`path-${index}`}
+                d={generatePathD(player)}
+                stroke="red"
+                strokeWidth="2"
+                fill="none"
+              />
+            ))}
 
-          {/* Render all players */}
-          {players.map((player, index) => (
-            <motion.circle
-            key={index}
-            cx={player.position.x}
-            cy={player.position.y}
-            r="10"
-            fill={
-              index === activePlayerIndex ? "rgb(140, 140, 140)" : "rgb(0, 0, 0)"
-            }
-            onClick={(e) => selectPlayer(e, index)}
-            animate={{
-              cx: player.animation.cx,
-              cy: player.animation.cy,
-            }}
-            transition={{
-              duration: player.animation.duration || 1, // Set dynamic duration
-              ease: "linear",
-            }}
-          />          
-          ))}
-        </svg>
-      </div>
-
-      <div className="button-container">
-        <button onClick={execute} className="button">
-          Run routes
-        </button>
-        <button onClick={resetState} className="button" id="reset-button">
-          Reset
-        </button>
-      </div>
-
-      <div className="speed-controls">
-        {players.map((_, index) => (
-          <div key={index}>
-            <label>Player {index + 1} Speed: </label>
-            <input
-              type="range"
-              min="50"
-              max="300"
-              step="10"
-              value={speeds[index]}
-              onChange={(e) => handleSpeedChange(index, Number(e.target.value))}
-            />
-            <span>{speeds[index]} px/sec</span>
+            {/* Render all players */}
+            {players.map((player, index) => (
+              <motion.circle
+                key={index}
+                cx={player.position.x}
+                cy={player.position.y}
+                r="10"
+                fill={
+                  index === activePlayerIndex
+                    ? "rgb(140, 140, 140)"
+                    : "rgb(0, 0, 0)"
+                }
+                onClick={(e) => selectPlayer(e, index)}
+                animate={{
+                  cx: player.animation.cx,
+                  cy: player.animation.cy,
+                }}
+                transition={{
+                  duration: player.animation.duration || 1, // Set dynamic duration
+                  ease: "linear",
+                }}
+              />
+            ))}
+          </svg>
+          <div className="button-container">
+            <button onClick={execute} className="button">
+              Run routes
+            </button>
+            <button onClick={resetState} className="button" id="reset-button">
+              Reset
+            </button>
           </div>
-        ))}
+        </div>
+
+        <div className="speed-controls">
+          {players.map((_, index) => (
+            <div key={index}>
+              <label>Player {index + 1} Speed: </label>
+              <input
+                type="range"
+                min="50"
+                max="300"
+                step="10"
+                value={speeds[index]}
+                onChange={(e) =>
+                  handleSpeedChange(index, Number(e.target.value))
+                }
+              />
+              <span>{speeds[index]} px/sec</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

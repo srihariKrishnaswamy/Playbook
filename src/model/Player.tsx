@@ -61,7 +61,7 @@ class Player {
     // Updated setRouteAnimation to accept duration
     setRouteAnimation(cx: number[], cy: number[], duration: number) {
         this.animation = { cx, cy, duration };
-      }
+    }
 
     resetState(): void {
         this.position = { x: this.origin.x, y: this.origin.y };

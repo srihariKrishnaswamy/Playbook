@@ -12,14 +12,9 @@
   box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* App.css */
-
-/* Existing styles... */
-
 /* New style for spacing buttons */
 .button-container {
   text-align: center;
-  margin-top: 20px;
   padding: 10px;
 }
 
