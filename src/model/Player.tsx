@@ -7,7 +7,8 @@ class Player {
     position: Point;
     path: Point[];
     animation: { cx: number[]; cy: number[]; duration: number };
-    color: string; // New color property
+    color: string; 
+    defaultColor: string = "red";
 
     constructor(originX: number, originY: number, color: string = "red") {
         this.origin = { x: originX, y: originY };
@@ -15,6 +16,7 @@ class Player {
         this.animation = { cx: [originX], cy: [originY], duration: 2 }; // Default duration
         this.path = [];
         this.color = color; // Initialize with a default color
+        this.color = this.defaultColor;
     }
 
     startDrawing(x: number, y: number): void {
@@ -68,6 +70,7 @@ class Player {
         this.position = { x: this.origin.x, y: this.origin.y };
         this.path = [];
         this.animation = { cx: [this.origin.x], cy: [this.origin.y], duration: 1 }; // Reset animation with default duration
+        this.color = this.defaultColor; 
     }
 
     toString(): string {

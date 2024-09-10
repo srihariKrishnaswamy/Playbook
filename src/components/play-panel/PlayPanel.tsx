@@ -7,18 +7,16 @@ import "./PlayPanel.css";
 
 function PlayPanel() {
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
-  const [activePlayerIndex, setActivePlayerIndex] = useState<number | null>(
-    null
-  );
+  const [activePlayerIndex, setActivePlayerIndex] = useState<number | null>(null);
   const [players, setPlayers] = useState<Player[]>([
     new Player(100, 300),
     new Player(200, 300),
   ]);
 
-  const [speeds, setSpeeds] = useState<number[]>([100, 100]); // Speed for each player
+  const [speeds, setSpeeds] = useState<number[]>([100, 100]);
   const [strokeColors, setStrokeColors] = useState<string[]>(
-    new Array(players.length).fill("red")
-  ); // Initialize stroke color for each player
+    players.map((player) => player.color)
+  );
 
   const handleMouseDown = (e: MouseEvent<SVGElement>) => {
     if (activePlayerIndex === null) return;
@@ -33,7 +31,7 @@ function PlayPanel() {
     setIsMouseDown(true);
 
     const updatedPlayers = [...players];
-    updatedPlayers[activePlayerIndex].startDrawing(x, y); // Start a new path for the active player
+    updatedPlayers[activePlayerIndex].startDrawing(x, y);
     setPlayers(updatedPlayers);
   };
 
@@ -48,7 +46,7 @@ function PlayPanel() {
     const y = e.clientY - rect.top;
 
     const updatedPlayers = [...players];
-    updatedPlayers[activePlayerIndex].addPoint(x, y); // Add points to the active player's path
+    updatedPlayers[activePlayerIndex].addPoint(x, y);
     setPlayers(updatedPlayers);
   };
 
@@ -56,7 +54,7 @@ function PlayPanel() {
     setIsMouseDown(false);
     if (activePlayerIndex !== null) {
       const updatedPlayers = [...players];
-      updatedPlayers[activePlayerIndex].finishDrawing(); // Mark path as finished
+      updatedPlayers[activePlayerIndex].finishDrawing();
       setPlayers(updatedPlayers);
       setActivePlayerIndex(null);
     }
@@ -64,7 +62,7 @@ function PlayPanel() {
 
   const handleDoubleClick = (index: number) => {
     const updatedColors = [...strokeColors];
-    updatedColors[index] = "darkred"; // Change the stroke color to dark red on double-click
+    updatedColors[index] = "darkred";
     setStrokeColors(updatedColors);
   };
 
@@ -111,6 +109,9 @@ function PlayPanel() {
       return player;
     });
     setPlayers(resetPlayers);
+
+    // Reset stroke colors to red for all players
+    setStrokeColors(resetPlayers.map((player) => player.color));
   };
 
   const selectPlayer = (e: MouseEvent, index: number) => {
@@ -151,9 +152,7 @@ function PlayPanel() {
                 cx={player.position.x}
                 cy={player.position.y}
                 r="10"
-                fill={
-                  index === activePlayerIndex ? "rgb(140, 140, 140)" : "black"
-                }
+                fill={index === activePlayerIndex ? "rgb(140, 140, 140)" : "black"}
                 onClick={(e) => selectPlayer(e, index)}
                 onDoubleClick={() => handleDoubleClick(index)}
                 animate={{
@@ -173,6 +172,9 @@ function PlayPanel() {
             </button>
             <button onClick={resetState} className="button" id="reset-button">
               Reset
+            </button>
+            <button onClick={completeReset} className="button" id="reset-button">
+              Complete Reset
             </button>
           </div>
         </div>
