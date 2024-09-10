@@ -7,7 +7,9 @@ import "./PlayPanel.css";
 
 function PlayPanel() {
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
-  const [activePlayerIndex, setActivePlayerIndex] = useState<number | null>(null);
+  const [activePlayerIndex, setActivePlayerIndex] = useState<number | null>(
+    null
+  );
   const [players, setPlayers] = useState<Player[]>([
     new Player(100, 300),
     new Player(200, 300),
@@ -130,13 +132,22 @@ function PlayPanel() {
       <div className="play-panel-container">
         <div className="svg-container">
           <svg
-            width="400"
+            width="600"
             height="400"
             className="svg-drawing-area"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
           >
+            <line
+              x1="33"
+              y1="245"
+              x2="565"
+              y2="245"
+              stroke="navy"
+              stroke-width="5"
+            />
+
             {players.map((player, index) => (
               <path
                 key={`path-${index}`}
@@ -152,7 +163,9 @@ function PlayPanel() {
                 cx={player.position.x}
                 cy={player.position.y}
                 r="10"
-                fill={index === activePlayerIndex ? "rgb(140, 140, 140)" : "black"}
+                fill={
+                  index === activePlayerIndex ? "rgb(140, 140, 140)" : "black"
+                }
                 onClick={(e) => selectPlayer(e, index)}
                 onDoubleClick={() => handleDoubleClick(index)}
                 animate={{
@@ -173,7 +186,11 @@ function PlayPanel() {
             <button onClick={resetState} className="button" id="reset-button">
               Reset
             </button>
-            <button onClick={completeReset} className="button" id="reset-button">
+            <button
+              onClick={completeReset}
+              className="button"
+              id="reset-button"
+            >
               Complete Reset
             </button>
           </div>

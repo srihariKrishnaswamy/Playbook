@@ -8,6 +8,7 @@
 
 .svg-drawing-area {
   background-color: #f0f0f0;
+  background-image: url('./img/AmFBfield.svg.png');
   border-radius: 5px;
   box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
 }
