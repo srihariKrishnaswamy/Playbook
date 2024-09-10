@@ -11,7 +11,7 @@ class Player {
     constructor(originX: number, originY: number) {
         this.origin = { x: originX, y: originY };
         this.position = { x: originX, y: originY };
-        this.animation = { cx: [originX], cy: [originY], duration: 1 }; // Default duration
+        this.animation = { cx: [originX], cy: [originY], duration: 2 }; // Default duration
         this.path = [];
     }
 
@@ -59,9 +59,9 @@ class Player {
     }
 
     // Updated setRouteAnimation to accept duration
-    setRouteAnimation(cx: number[], cy: number[], duration: number): void {
-        this.animation = { cx: cx, cy: cy, duration: duration };
-    }
+    setRouteAnimation(cx: number[], cy: number[], duration: number) {
+        this.animation = { cx, cy, duration };
+      }
 
     resetState(): void {
         this.position = { x: this.origin.x, y: this.origin.y };

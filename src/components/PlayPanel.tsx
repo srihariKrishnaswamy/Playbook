@@ -70,17 +70,24 @@ function PlayPanel() {
       if (player.path.length > 0) {
         const xKeyframes = player.path.map((point) => point.x);
         const yKeyframes = player.path.map((point) => point.y);
-
+  
         // Calculate total path distance
         const totalDistance = calculateTotalDistance(player.path);
-
-        // Calculate duration based on speed (pixels per second)
+  
+        // Get the user's chosen speed (pixels per second)
         const speed = speeds[index];
+  
+        // Calculate duration based on total distance and speed
         const duration = totalDistance / speed;
-
-        player.setRouteAnimation(xKeyframes, yKeyframes, duration); // Pass the calculated duration
+  
+        // Pass the duration and keyframes to the player
+        player.setRouteAnimation(xKeyframes, yKeyframes, duration);
         console.log(
-          "Running route for player: " + index + " with speed: " + speeds[index]
+          "Running route for player: " +
+            index +
+            " with speed: " +
+            speed +
+            " px/sec"
         );
       }
       return player;
@@ -158,23 +165,23 @@ function PlayPanel() {
           {/* Render all players */}
           {players.map((player, index) => (
             <motion.circle
-              key={index}
-              cx={player.position.x}
-              cy={player.position.y}
-              r="10"
-              fill={
-                index === activePlayerIndex ? "rgb(140, 140, 140)" : "rgb(0, 0, 0)"
-              }
-              onClick={(e) => selectPlayer(e, index)}
-              animate={{
-                cx: player.animation.cx,
-                cy: player.animation.cy,
-              }}
-              transition={{
-                duration: player.animation.duration || 1, // Set dynamic duration
-                ease: "linear",
-              }}
-            />
+            key={index}
+            cx={player.position.x}
+            cy={player.position.y}
+            r="10"
+            fill={
+              index === activePlayerIndex ? "rgb(140, 140, 140)" : "rgb(0, 0, 0)"
+            }
+            onClick={(e) => selectPlayer(e, index)}
+            animate={{
+              cx: player.animation.cx,
+              cy: player.animation.cy,
+            }}
+            transition={{
+              duration: player.animation.duration || 1, // Set dynamic duration
+              ease: "linear",
+            }}
+          />          
           ))}
         </svg>
       </div>
