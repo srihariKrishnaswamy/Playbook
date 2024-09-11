@@ -76,3 +76,45 @@
   z-index: 2; /* Make sure it's above the panel */
   pointer-events: none; /* So you can still interact with the panel beneath */
 }
+
+
+/* General slider styles */
+.slider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    border-radius: 5px;
+    background: gray; /* Slider track color */
+    outline: none;
+    opacity: 0.9;
+    transition: opacity 0.2s ease;
+  }
+  
+  /* Custom style for the thumb (the handle you drag) */
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #59d35d; /* Thumb color */
+    cursor: pointer;
+  }
+  
+  .slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #59d35d; /* Thumb color for Firefox */
+    cursor: pointer;
+  }
+  
+  /* Active state: when the user hovers over or is dragging the slider */
+  .slider:active::-webkit-slider-thumb {
+    background: #59d35d; /* Slightly lighter green when active */
+  }
+  
+  .slider:active::-moz-range-thumb {
+    background: #59d35d;
+  }
+  
