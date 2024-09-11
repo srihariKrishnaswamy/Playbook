@@ -55,6 +55,28 @@
   background-color: #777; /* Even lighter gray on click */
 }
 
+.formation-button {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #000000; /* Customize color */
+  color: white;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
+  z-index: 10; /* Ensure it's above the SVG */
+}
+
+.formation-button:hover {
+  background-color: #555; /* Lighter gray on hover */
+}
+
+.formation-button:active {
+  background-color: #777; /* Even lighter gray on click */
+}
+
 .player-circle {
   cursor: pointer;
   stroke: white;
@@ -63,7 +85,7 @@
 }
 
 .player-circle:hover {
-    stroke: rgb(192, 192, 192);
+  stroke: rgb(192, 192, 192);
 }
 
 .overlay {
@@ -77,47 +99,46 @@
   pointer-events: none; /* So you can still interact with the panel beneath */
 }
 
-
 /* General slider styles */
 .slider {
-    -webkit-appearance: none;
-    appearance: none;
-    height: 8px;
-    border-radius: 5px;
-    background: gray; /* Slider track color */
-    outline: none;
-    opacity: 0.9;
-    transition: opacity 0.2s ease;
-  }
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 5px;
+  background: gray; /* Slider track color */
+  outline: none;
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+}
 
-  /* Custom style for the thumb (the handle you drag) */
-  .slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #59d35d; /* Thumb color */
-    cursor: pointer;
-  }
+/* Custom style for the thumb (the handle you drag) */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #59d35d; /* Thumb color */
+  cursor: pointer;
+}
 
-  .slider::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #59d35d; /* Thumb color for Firefox */
-    cursor: pointer;
-  }
+.slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #59d35d; /* Thumb color for Firefox */
+  cursor: pointer;
+}
 
-  /* Active state: when the user hovers over or is dragging the slider */
-  .slider:active::-webkit-slider-thumb {
-    background: #59d35d; /* Slightly lighter green when active */
-  }  
-  
-  .slider:active::-moz-range-thumb {
-    background: #59d35d;
-  }
-  
-  .slider:active::-moz-range-thumb {
-    background: #59d35d;
-  }
+/* Active state: when the user hovers over or is dragging the slider */
+.slider:active::-webkit-slider-thumb {
+  background: #59d35d; /* Slightly lighter green when active */
+}
+
+.slider:active::-moz-range-thumb {
+  background: #59d35d;
+}
+
+.slider:active::-moz-range-thumb {
+  background: #59d35d;
+}

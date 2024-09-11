@@ -1,22 +1,32 @@
-import React, { useState, MouseEvent } from "react";
+import React, { useState, MouseEvent, useEffect } from "react";
+import FormationsModal from "./formations-modal/FormationsModal";
 import { motion } from "framer-motion";
 import Player from "../../model/Player";
+import { formationOptions } from "../../presets/FormationOptions";
 import "../../App.css";
 import "./PlayPanel.css";
 
 function PlayPanel() {
+  const [currentFormationIndex, setCurrentFormationIndex] = useState<number>(0);
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
   const [activePlayerIndex, setActivePlayerIndex] = useState<number | null>(
     null
   );
-  const [players, setPlayers] = useState<Player[]>([
-    new Player(300, 300, 100),
-    new Player(300, 257, 100),
-  ]);
+  const [players, setPlayers] = useState<Player[]>(
+    formationOptions[currentFormationIndex].players
+  );
   const [strokeColors, setStrokeColors] = useState<string[]>(
     players.map((player) => player.color)
   );
   const [addPlayerOnClick, setAddPlayerOnClick] = useState<boolean>(false);
+  const [formationsModalOpen, setFormationsModalOpen] =
+    useState<boolean>(false);
+
+  // When we change formations, we also erase routes.
+  useEffect(() => {
+    completeReset();
+    setPlayers(formationOptions[currentFormationIndex].players);
+  }, [currentFormationIndex]);
 
   const addPlayer = (e: MouseEvent<SVGElement>, svg: SVGSVGElement) => {
     const rect = svg.getBoundingClientRect();
@@ -61,7 +71,10 @@ function PlayPanel() {
       return distance <= playerRadius;
     });
 
-    if (clickedOnPlayerIndex !== -1 && clickedOnPlayerIndex !== activePlayerIndex) {
+    if (
+      clickedOnPlayerIndex !== -1 &&
+      clickedOnPlayerIndex !== activePlayerIndex
+    ) {
       return;
     }
 
@@ -112,7 +125,6 @@ function PlayPanel() {
         const duration = player.calculateDuration(totalDistance);
         const { cx, cy } = player.getPath();
         player.setRouteAnimation(cx, cy, duration);
-        console.log("Player " + "Path: " + player.toString());
       }
       return player;
     });
@@ -155,10 +167,26 @@ function PlayPanel() {
     console.log("adding player");
   };
 
+  const openFormationsModal = () => {
+    setFormationsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setFormationsModalOpen(false);
+  };
+
+  const handleFormationSelect = (formationIndex: number) => {
+    console.log("Selected formation: ", formationOptions[formationIndex].name);
+    setCurrentFormationIndex(formationIndex);
+  };
+
   return (
     <div className="component-container">
       <div className="play-panel-container">
         <div className="svg-container">
+          <div className="formation-button" onClick={openFormationsModal}>
+            Formations
+          </div>
           <div
             className="plus-button"
             onClick={(e) => handleAddPlayerButtonClick(e)}
@@ -253,6 +281,14 @@ function PlayPanel() {
             </div>
           ))}
         </div>
+        {formationsModalOpen && (
+          <FormationsModal
+            currentFormationIndex={currentFormationIndex}
+            formations={formationOptions}
+            onClose={closeModal}
+            onSelectFormation={handleFormationSelect}
+          />
+        )}
       </div>
     </div>
   );
