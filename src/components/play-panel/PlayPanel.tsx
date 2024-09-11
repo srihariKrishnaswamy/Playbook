@@ -1,6 +1,5 @@
 import React, { useState, MouseEvent } from "react";
 import { motion } from "framer-motion";
-import { Point } from "../../model/Point";
 import Player from "../../model/Player";
 import "../../App.css";
 import "./PlayPanel.css";
@@ -11,11 +10,9 @@ function PlayPanel() {
     null
   );
   const [players, setPlayers] = useState<Player[]>([
-    new Player(300, 257),
-    new Player(300, 300),
+    new Player(300, 300, 100),
+    new Player(300, 257, 100),
   ]);
-
-  const [speeds, setSpeeds] = useState<number[]>([100, 100]);
   const [strokeColors, setStrokeColors] = useState<string[]>(
     players.map((player) => player.color)
   );
@@ -26,9 +23,8 @@ function PlayPanel() {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const newPlayer = new Player(x, y);
+    const newPlayer = new Player(x, y, 100);
     setPlayers([...players, newPlayer]);
-    setSpeeds([...speeds, 100]);
     setAddPlayerOnClick(false);
     setStrokeColors([...strokeColors, newPlayer.color]);
 
@@ -52,7 +48,6 @@ function PlayPanel() {
   const handleMouseDown = (e: MouseEvent<SVGElement>) => {
     const svg = e.currentTarget.closest("svg");
     if (!svg) return;
-
     const rect = svg.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -71,6 +66,7 @@ function PlayPanel() {
     }
 
     // If addPlayerOnClick is true, add a player instead of drawing
+
     if (addPlayerOnClick) {
       addPlayer(e, svg);
     } else {
@@ -103,45 +99,29 @@ function PlayPanel() {
     }
   };
 
-  const handleDoubleClick = (index: number) => {
-    const updatedColors = [...strokeColors];
-    updatedColors[index] = "darkred";
-    setStrokeColors(updatedColors);
-  };
-
   const execute = () => {
-    const updatedPlayers = players.map((player, index) => {
+    const updatedPlayers = players.map((player) => {
       if (player.path.length > 1) {
-        const xKeyframes = player.path.map((point) => point.x);
-        const yKeyframes = player.path.map((point) => point.y);
+        const totalDistance = player.path.reduce((acc, point, index, path) => {
+          if (index === 0) return acc;
+          const dx = point.x - path[index - 1].x;
+          const dy = point.y - path[index - 1].y;
+          return acc + Math.sqrt(dx * dx + dy * dy);
+        }, 0);
 
-        const totalDistance = calculateTotalDistance(player.path);
-        const speed = speeds[index];
-        const duration = totalDistance / speed;
-
-        player.setRouteAnimation(xKeyframes, yKeyframes, duration);
-
-        console.log("Player " + index + "Path: " + player.toString());
+        const duration = player.calculateDuration(totalDistance);
+        const { cx, cy } = player.getPath();
+        player.setRouteAnimation(cx, cy, duration);
+        console.log("Player " + "Path: " + player.toString());
       }
       return player;
     });
     setPlayers(updatedPlayers);
   };
 
-  const calculateTotalDistance = (path: Point[]): number => {
-    let totalDistance = 0;
-    for (let i = 1; i < path.length; i++) {
-      const dx = path[i].x - path[i - 1].x;
-      const dy = path[i].y - path[i - 1].y;
-      totalDistance += Math.sqrt(dx * dx + dy * dy);
-    }
-    return totalDistance;
-  };
-
   const resetState = () => {
     const resetPlayers = players.map((player) => {
-      // Move player back to origin without clearing the path
-      player.setRouteAnimation([player.origin.x], [player.origin.y], 1); // Reset animation back to origin points
+      player.setRouteAnimation([player.origin.x], [player.origin.y], 1);
       return player;
     });
     setPlayers(resetPlayers);
@@ -149,13 +129,12 @@ function PlayPanel() {
 
   const completeReset = () => {
     const resetPlayers = players.map((player) => {
-      player.resetState(); // Clear path and move player to origin
-      player.setRouteAnimation([player.origin.x], [player.origin.y], 1); // Reset animation back to origin points
+      player.resetState();
+      player.setRouteAnimation([player.origin.x], [player.origin.y], 1);
       return player;
     });
     setPlayers(resetPlayers);
 
-    // Reset stroke colors to red for all players
     setStrokeColors(resetPlayers.map((player) => player.color));
   };
 
@@ -165,9 +144,9 @@ function PlayPanel() {
   };
 
   const handleSpeedChange = (index: number, newSpeed: number) => {
-    const updatedSpeeds = [...speeds];
-    updatedSpeeds[index] = newSpeed;
-    setSpeeds(updatedSpeeds);
+    const updatedPlayers = [...players];
+    updatedPlayers[index].setSpeed(newSpeed);
+    setPlayers(updatedPlayers);
   };
 
   const handleAddPlayerButtonClick = (e: MouseEvent) => {
@@ -221,7 +200,11 @@ function PlayPanel() {
                 r="10"
                 fill={index === activePlayerIndex ? "yellow" : "black"}
                 onClick={(e) => selectPlayer(e, index)}
-                onDoubleClick={() => handleDoubleClick(index)}
+                onDoubleClick={() => {
+                  const updatedColors = [...strokeColors];
+                  updatedColors[index] = "yellow";
+                  setStrokeColors(updatedColors);
+                }}
                 animate={{
                   cx: player.animation.cx,
                   cy: player.animation.cy,
@@ -260,13 +243,13 @@ function PlayPanel() {
                 min="50"
                 max="300"
                 step="10"
-                value={speeds[index]}
+                value={players[index].speed}
                 onChange={(e) =>
                   handleSpeedChange(index, Number(e.target.value))
                 }
                 className="slider"
               />
-              <span>{speeds[index]} px/sec</span>
+              <span>{players[index].speed} px/sec</span>
             </div>
           ))}
         </div>

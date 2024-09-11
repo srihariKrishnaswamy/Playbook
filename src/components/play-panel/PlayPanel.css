@@ -89,7 +89,7 @@
     opacity: 0.9;
     transition: opacity 0.2s ease;
   }
-  
+
   /* Custom style for the thumb (the handle you drag) */
   .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
@@ -100,7 +100,7 @@
     background: #59d35d; /* Thumb color */
     cursor: pointer;
   }
-  
+
   .slider::-moz-range-thumb {
     width: 16px;
     height: 16px;
@@ -108,13 +108,16 @@
     background: #59d35d; /* Thumb color for Firefox */
     cursor: pointer;
   }
-  
+
   /* Active state: when the user hovers over or is dragging the slider */
   .slider:active::-webkit-slider-thumb {
     background: #59d35d; /* Slightly lighter green when active */
-  }
+  }  
   
   .slider:active::-moz-range-thumb {
     background: #59d35d;
   }
   
+  .slider:active::-moz-range-thumb {
+    background: #59d35d;
+  }

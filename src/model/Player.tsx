@@ -8,13 +8,15 @@ class Player {
     path: Point[];
     animation: { cx: number[]; cy: number[]; duration: number };
     color: string;
+    speed: number;
     defaultColor: string = "red";
 
-    constructor(originX: number, originY: number) {
+    constructor(originX: number, originY: number, speed: number = 100) {
         this.origin = { x: originX, y: originY };
         this.position = { x: originX, y: originY };
         this.animation = { cx: [originX], cy: [originY], duration: 2 }; // Default duration
         this.path = [];
+        this.speed = speed;
         this.color = this.defaultColor;
     }
 
@@ -67,11 +69,19 @@ class Player {
         this.animation = { cx, cy, duration };
     }
 
+    calculateDuration(totalDistance: number): number {
+        return totalDistance / this.speed;
+    }
+
     resetState(): void {
         this.position = { x: this.origin.x, y: this.origin.y };
         this.path = [];
         this.animation = { cx: [this.origin.x], cy: [this.origin.y], duration: 1 }; // Reset animation with default duration
         this.color = this.defaultColor;
+    }
+
+    setSpeed(newSpeed: number): void {
+        this.speed = newSpeed;
     }
 
     toString(): string {
