@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
   background-color: black;
   padding-bottom: 2rem;
   padding-right: 2rem;
@@ -27,6 +26,7 @@
 .svg-container {
   position: relative;
   display: inline-block; /* Ensures the button is positioned relative to the SVG frame */
+  margin-bottom: 2rem;
 }
 
 .plus-button {
@@ -141,4 +141,16 @@
 
 .slider:active::-moz-range-thumb {
   background: #59d35d;
+}
+
+.play-name-input {
+  color: white;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 24px;
+  text-align: center;
+  font-family: Montserrat, 'sans-serif';
+  padding-top: 1rem;
+  width: 100%;
 }

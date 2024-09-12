@@ -2,11 +2,17 @@ import React, { useState, MouseEvent, useEffect } from "react";
 import FormationsModal from "./formations-modal/FormationsModal";
 import { motion } from "framer-motion";
 import Player from "../../model/Player";
-import { formationOptions } from "../../presets/FormationOptions";
+import {
+  formationOptions,
+  temporaryPlaybook,
+} from "../../presets/FormationOptions";
+import { Play } from "../../model/Play";
+import lodash from "lodash";
 import "../../App.css";
 import "./PlayPanel.css";
 
 function PlayPanel() {
+  const [playName, setPlayName] = useState<string>("");
   const [currentFormationIndex, setCurrentFormationIndex] = useState<number>(0);
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
   const [activePlayerIndex, setActivePlayerIndex] = useState<number | null>(
@@ -180,9 +186,34 @@ function PlayPanel() {
     setCurrentFormationIndex(formationIndex);
   };
 
+  const handlePlayNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPlayName(e.target.value);
+  };
+
+  const savePlay = () => {
+    if (playName === "") {
+      alert("Specify a play name");
+      return;
+    }
+    const play = new Play(
+      playName,
+      lodash.cloneDeep(players),
+      formationOptions[currentFormationIndex].id
+    );
+    temporaryPlaybook.addPlay(play);
+    temporaryPlaybook.save();
+  };
+
   return (
     <div className="component-container">
       <div className="play-panel-container">
+        <input
+          type="text"
+          placeholder="Enter play name"
+          className="play-name-input"
+          value={playName}
+          onChange={handlePlayNameChange}
+        />
         <div className="svg-container">
           <div className="formation-button" onClick={openFormationsModal}>
             Formations
@@ -258,6 +289,9 @@ function PlayPanel() {
               id="reset-button"
             >
               Complete Reset
+            </button>
+            <button onClick={savePlay} className="button" id="save-button">
+              Save Play
             </button>
           </div>
         </div>

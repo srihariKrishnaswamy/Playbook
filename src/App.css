@@ -49,6 +49,10 @@
   background: rgb(225, 101, 101); /* Darken on hover */
 }
 
-#reset-button:active {
-  transform: scale(0.98); /* Button press effect */
+#save-button {
+  background: rgb(28, 140, 125);
+}
+
+#save-button:hover {
+  background: rgb(101, 225, 213); /* Darken on hover */
 }
