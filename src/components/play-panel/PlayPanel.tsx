@@ -11,7 +11,11 @@ import lodash from "lodash";
 import "../../App.css";
 import "./PlayPanel.css";
 
-function PlayPanel() {
+interface PlayPanelProps { // gotta figure out how to use this play object, it doesnt do anything for now
+  play: Play | undefined;
+}
+
+const PlayPanel: React.FC<PlayPanelProps> = ({play}) => {
   const [playName, setPlayName] = useState<string>("");
   const [currentFormationIndex, setCurrentFormationIndex] = useState<number>(0);
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
@@ -209,7 +213,7 @@ function PlayPanel() {
       <div className="play-panel-container">
         <input
           type="text"
-          placeholder="Enter play name"
+          placeholder="Play name"
           className="play-name-input"
           value={playName}
           onChange={handlePlayNameChange}

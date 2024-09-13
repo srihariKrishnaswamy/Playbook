@@ -56,3 +56,10 @@
 #save-button:hover {
   background: rgb(101, 225, 213); /* Darken on hover */
 }
+
+.component-container {
+  display: flex;
+  justify-content: center; /* Centers horizontally */
+  flex-direction: column;
+  height: 100vh; /* Ensures the parent container takes up the full height of the viewport */
+}
