@@ -13,15 +13,6 @@
   align-items: center;
 }
 
-.plays-title-container {
-  background-color: black;
-  padding: 20px;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-}
-
 .plays-list {
   display: flex;
   flex-direction: column;

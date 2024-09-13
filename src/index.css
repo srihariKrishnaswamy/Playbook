@@ -9,11 +9,10 @@ html, body {
 }
 
 body {
-  background-image: url('./img/green-bg.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-color: black;
+  background-color: rgb(21, 21, 21);
 }
 
 code {

@@ -10,13 +10,16 @@ import { Playbook } from "../../model/Playbook";
 import lodash from "lodash";
 import "../../App.css";
 import "./PlayPanel.css";
+import { useNavigate } from "react-router-dom";
 
 interface PlayPanelProps { // gotta figure out how to use this play object, it doesnt do anything for now
   play: Play | undefined;
   playbook: Playbook | undefined;
 }
 
-const PlayPanel: React.FC<PlayPanelProps> = ({play, playbook}) => {
+const PlayPanel: React.FC<PlayPanelProps> = ({ play, playbook }) => {
+  const navigate = useNavigate();
+  
   const [playName, setPlayName] = useState<string>("");
   const [currentFormationIndex, setCurrentFormationIndex] = useState<number>(0);
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
@@ -213,8 +216,18 @@ const PlayPanel: React.FC<PlayPanelProps> = ({play, playbook}) => {
     playbook.save();
   };
 
+  const backToPlays = () => {
+    navigate("/play-list")
+  }
+
   return (
     <div className="component-container">
+      <div className="title-container" id="play-panel-title-container">
+        <div className="back-button" onClick={backToPlays}>
+          ←
+        </div>
+        <div className="title">Play Panel</div>
+      </div>
       <div className="play-panel-container">
         <input
           type="text"

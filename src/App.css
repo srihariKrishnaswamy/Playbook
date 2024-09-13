@@ -76,3 +76,40 @@
   padding-top: 1rem;
   width: 100%;
 }
+
+.back-button {
+  background-color: rgb(199, 0, 0);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.3s ease; /* Smooth transition */
+  border: 1px solid white;
+}
+
+.back-button:hover {
+  background-color: rgb(199, 76, 76);
+}
+
+.back-button:active {
+  background-color: rgb(199, 137, 137);
+}
+
+.title-container {
+  background-color: black;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+#play-panel-title-container {
+  transform: translateY(3rem);
+}
