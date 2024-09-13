@@ -14,7 +14,7 @@ const PlaysDisplay: React.FC<PlaysDisplayProps> = ({currentPlaybook, setCurrentP
     const navigate = useNavigate();
     
     const addPlay = () => {
-
+        navigate("/play-panel");
     }
 
     const selectPlay = (play: Play) => {

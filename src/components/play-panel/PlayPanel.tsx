@@ -4,18 +4,19 @@ import { motion } from "framer-motion";
 import Player from "../../model/Player";
 import {
   formationOptions,
-  temporaryPlaybook,
 } from "../../presets/FormationOptions";
 import { Play } from "../../model/Play";
+import { Playbook } from "../../model/Playbook";
 import lodash from "lodash";
 import "../../App.css";
 import "./PlayPanel.css";
 
 interface PlayPanelProps { // gotta figure out how to use this play object, it doesnt do anything for now
   play: Play | undefined;
+  playbook: Playbook | undefined;
 }
 
-const PlayPanel: React.FC<PlayPanelProps> = ({play}) => {
+const PlayPanel: React.FC<PlayPanelProps> = ({play, playbook}) => {
   const [playName, setPlayName] = useState<string>("");
   const [currentFormationIndex, setCurrentFormationIndex] = useState<number>(0);
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
@@ -199,13 +200,17 @@ const PlayPanel: React.FC<PlayPanelProps> = ({play}) => {
       alert("Specify a play name");
       return;
     }
+    if (!playbook) {
+      alert("No playbook selected");
+      return;
+    }
     const play = new Play(
       playName,
       lodash.cloneDeep(players),
       formationOptions[currentFormationIndex].id
     );
-    temporaryPlaybook.addPlay(play);
-    temporaryPlaybook.save();
+    playbook.addPlay(play);
+    playbook.save();
   };
 
   return (
@@ -214,7 +219,7 @@ const PlayPanel: React.FC<PlayPanelProps> = ({play}) => {
         <input
           type="text"
           placeholder="Play name"
-          className="play-name-input"
+          className="name-input"
           value={playName}
           onChange={handlePlayNameChange}
         />

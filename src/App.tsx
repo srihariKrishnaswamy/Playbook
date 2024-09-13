@@ -25,7 +25,7 @@ function App() {
           path="/play-list"
           element={<PlaysDisplay currentPlaybook={currentPlaybook} setCurrentPlay={setCurrentPlay}/>}
         />
-        <Route path="/play-panel" element={<PlayPanel play={currentPlay}/>} />
+        <Route path="/play-panel" element={<PlayPanel play={currentPlay} playbook={currentPlaybook}/>} />
       </Routes>
     </Router>
   );
