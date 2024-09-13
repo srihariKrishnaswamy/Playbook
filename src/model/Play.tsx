@@ -1,4 +1,3 @@
-import { Formation } from "./Formation";
 import Player from "./Player";
 
 export class Play {
