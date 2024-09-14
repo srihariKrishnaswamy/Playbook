@@ -10,16 +10,16 @@ import { Playbook } from "../../model/Playbook";
 import lodash from "lodash";
 import "../../App.css";
 import "./PlayPanel.css";
-import { useNavigate } from "react-router-dom";
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../config/FirebaseConfig';
 
 interface PlayPanelProps { // gotta figure out how to use this play object, it doesnt do anything for now
   play: Play | undefined;
   playbook: Playbook | undefined;
+  setCurrentPlaybook: (playbook: Playbook) => void;
 }
 
-const PlayPanel: React.FC<PlayPanelProps> = ({ play, playbook }) => {
-  const navigate = useNavigate();
-  
+const PlayPanel: React.FC<PlayPanelProps> = ({ play, playbook, setCurrentPlaybook }) => {  
   const [playName, setPlayName] = useState<string>("");
   const [currentFormationIndex, setCurrentFormationIndex] = useState<number>(0);
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
@@ -198,7 +198,36 @@ const PlayPanel: React.FC<PlayPanelProps> = ({ play, playbook }) => {
     setPlayName(e.target.value);
   };
 
-  const savePlay = () => {
+  const isDuplicatePlayName = (playName: string, playbook: Playbook): boolean => {
+    for (const play of playbook.plays) {
+      if (play.name === playName) return true;
+    }
+    return false;
+  }
+
+  const updatePlaybook = async () => {
+    if (!playbook) return;
+    const id = playbook.id;
+    if (!id) return;
+
+    try {
+      const playbookRef = doc(db, "Playbook", id); // Reference to the specific document
+      const playbookSnapshot = await getDoc(playbookRef); // Fetch the document
+
+      if (playbookSnapshot.exists()) {
+        const playbookData = playbookSnapshot.data();
+        // Assuming the document has fields 'name' and 'plays'
+        const fetchedPlaybook = new Playbook(playbookData.name, playbookData.plays, id);
+        setCurrentPlaybook(fetchedPlaybook);
+      } else {
+        console.log("No such document!");
+      }
+    } catch (error) {
+      console.error("Error fetching playbook:", error);
+    }
+  }
+
+  const savePlay = async () => {
     if (playName === "") {
       alert("Specify a play name");
       return;
@@ -207,27 +236,25 @@ const PlayPanel: React.FC<PlayPanelProps> = ({ play, playbook }) => {
       alert("No playbook selected");
       return;
     }
+    if (isDuplicatePlayName(playName, playbook)) {
+      alert("Duplicate Play Name");
+      return;
+    }
     const play = new Play(
       playName,
       lodash.cloneDeep(players),
       formationOptions[currentFormationIndex].id
     );
     playbook.addPlay(play);
-    playbook.save();
+    await playbook.save();
+    await updatePlaybook();
+    completeReset();
+    setPlayName("");
+    alert("Play saved successfully");
   };
-
-  const backToPlays = () => {
-    navigate("/play-list")
-  }
 
   return (
     <div className="component-container">
-      <div className="title-container" id="play-panel-title-container">
-        <div className="back-button" onClick={backToPlays}>
-          ←
-        </div>
-        <div className="title">Play Panel</div>
-      </div>
       <div className="play-panel-container">
         <input
           type="text"
