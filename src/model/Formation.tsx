@@ -1,11 +1,11 @@
-import Player from "./Player";
+import { PlayerMetadata } from "./PlayerMetadata";
 
 export class Formation {
-    players: Player[];
+    players: PlayerMetadata[];
     name: string;
-    id: string;
+    id: number;
 
-    constructor(players: Player[], name: string, id: string) {
+    constructor(players: PlayerMetadata[], name: string, id: number) {
         this.players = players;
         this.name = name;
         this.id = id;

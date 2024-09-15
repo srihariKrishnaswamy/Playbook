@@ -8,55 +8,70 @@ import {
 import { Play } from "../../model/Play";
 import { Playbook } from "../../model/Playbook";
 import lodash from "lodash";
-import "../../App.css";
-import "./PlayPanel.css";
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../config/FirebaseConfig';
+import { PlayerMetadata } from "../../model/PlayerMetadata";
+import "../../App.css";
+import "./PlayPanel.css";
 
-interface PlayPanelProps { // gotta figure out how to use this play object, it doesnt do anything for now
-  play: Play | undefined;
-  playbook: Playbook | undefined;
+interface PlayPanelProps {
+  play: Play;
+  playbook: Playbook;
+  playId: number;
   setCurrentPlaybook: (playbook: Playbook) => void;
 }
 
-const PlayPanel: React.FC<PlayPanelProps> = ({ play, playbook, setCurrentPlaybook }) => {  
+const PlayPanel: React.FC<PlayPanelProps> = ({ play, playbook, playId, setCurrentPlaybook }) => {
+  // State that will get saved to DB eventually if we save this play
   const [playName, setPlayName] = useState<string>("");
-  const [currentFormationIndex, setCurrentFormationIndex] = useState<number>(0);
+  const [players, setPlayers] = useState<Player[]>([]);
+
+  // Utility state for this component to work
+  const [currentFormationIndex, setCurrentFormationIndex] = useState<number>(-1);
+  const [formationsModalOpen, setFormationsModalOpen] = useState<boolean>(false);
+  const [strokeColors, setStrokeColors] = useState<string[]>([]);
+  const [activePlayerIndex, setActivePlayerIndex] = useState<number>(-1);
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
-  const [activePlayerIndex, setActivePlayerIndex] = useState<number | null>(
-    null
-  );
-  const [players, setPlayers] = useState<Player[]>(
-    formationOptions[currentFormationIndex].players
-  );
-  const [strokeColors, setStrokeColors] = useState<string[]>(
-    players.map((player) => player.color)
-  );
-  const [addPlayerOnClick, setAddPlayerOnClick] = useState<boolean>(false);
-  const [formationsModalOpen, setFormationsModalOpen] =
-    useState<boolean>(false);
 
-  // When we change formations, we also erase routes.
+  const totalReset = () => {
+    setPlayName("");
+    setPlayers([]);
+    setCurrentFormationIndex(-1);
+    setFormationsModalOpen(false);
+    setStrokeColors([]);
+    setActivePlayerIndex(-1);
+    setIsMouseDown(false);
+  }
+
+  // Reset the component when the play prop changes
   useEffect(() => {
-    completeReset();
-    setPlayers(formationOptions[currentFormationIndex].players);
-  }, [currentFormationIndex]);
+    totalReset();
+    setPlayName(play.name);
 
-  const addPlayer = (e: MouseEvent<SVGElement>, svg: SVGSVGElement) => {
-    const rect = svg.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const playersWithMethods = play.players.map(player =>
+      new Player(player.origin.x, player.origin.y, player.speed, player.path)
+    );
 
-    const newPlayer = new Player(x, y, 100);
-    setPlayers([...players, newPlayer]);
-    setAddPlayerOnClick(false);
-    setStrokeColors([...strokeColors, newPlayer.color]);
+    setPlayers(playersWithMethods);
+    setStrokeColors(playersWithMethods.map((player) => player.color));
+    setCurrentFormationIndex(play.baseFormationId); 
+  }, [play]);
 
-    console.log("Player added at X: " + x + " Y: " + y);
+  const handlePlayNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPlayName(e.target.value);
+  };
+
+  const openFormationsModal = () => {
+    setFormationsModalOpen(true);
+  };
+
+  const selectPlayer = (e: MouseEvent, index: number) => {
+    e.stopPropagation();
+    setActivePlayerIndex(index);
   };
 
   const startDrawingRoute = (e: MouseEvent<SVGElement>, svg: SVGSVGElement) => {
-    if (activePlayerIndex === null) return;
+    if (activePlayerIndex === -1) return;
 
     const rect = svg.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -91,18 +106,11 @@ const PlayPanel: React.FC<PlayPanelProps> = ({ play, playbook, setCurrentPlayboo
     ) {
       return;
     }
-
-    // If addPlayerOnClick is true, add a player instead of drawing
-
-    if (addPlayerOnClick) {
-      addPlayer(e, svg);
-    } else {
-      startDrawingRoute(e, svg);
-    }
+    startDrawingRoute(e, svg);
   };
 
   const handleMouseMove = (e: MouseEvent<SVGElement>) => {
-    if (!isMouseDown || activePlayerIndex === null) return;
+    if (!isMouseDown || activePlayerIndex === -1) return;
 
     const svg = e.currentTarget.closest("svg");
     if (!svg) return;
@@ -118,11 +126,11 @@ const PlayPanel: React.FC<PlayPanelProps> = ({ play, playbook, setCurrentPlayboo
 
   const handleMouseUp = () => {
     setIsMouseDown(false);
-    if (activePlayerIndex !== null) {
+    if (activePlayerIndex !== -1) {
       const updatedPlayers = [...players];
       updatedPlayers[activePlayerIndex].finishDrawing();
       setPlayers(updatedPlayers);
-      setActivePlayerIndex(null);
+      setActivePlayerIndex(-1);
     }
   };
 
@@ -142,10 +150,10 @@ const PlayPanel: React.FC<PlayPanelProps> = ({ play, playbook, setCurrentPlayboo
       }
       return player;
     });
-    setPlayers(updatedPlayers);
+    setPlayers([...updatedPlayers]);
   };
 
-  const resetState = () => {
+  const backtoLOS = () => {
     const resetPlayers = players.map((player) => {
       player.setRouteAnimation([player.origin.x], [player.origin.y], 1);
       return player;
@@ -153,70 +161,25 @@ const PlayPanel: React.FC<PlayPanelProps> = ({ play, playbook, setCurrentPlayboo
     setPlayers(resetPlayers);
   };
 
-  const completeReset = () => {
-    const resetPlayers = players.map((player) => {
-      player.resetState();
-      player.setRouteAnimation([player.origin.x], [player.origin.y], 1);
-      return player;
-    });
-    setPlayers(resetPlayers);
-
-    setStrokeColors(resetPlayers.map((player) => player.color));
-  };
-
-  const selectPlayer = (e: MouseEvent, index: number) => {
-    e.stopPropagation();
-    setActivePlayerIndex(index);
-  };
-
-  const handleSpeedChange = (index: number, newSpeed: number) => {
-    const updatedPlayers = [...players];
-    updatedPlayers[index].setSpeed(newSpeed);
-    setPlayers(updatedPlayers);
-  };
-
-  const handleAddPlayerButtonClick = (e: MouseEvent) => {
-    e.stopPropagation();
-    setAddPlayerOnClick(true);
-    console.log("adding player");
-  };
-
-  const openFormationsModal = () => {
-    setFormationsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setFormationsModalOpen(false);
-  };
-
-  const handleFormationSelect = (formationIndex: number) => {
-    console.log("Selected formation: ", formationOptions[formationIndex].name);
-    setCurrentFormationIndex(formationIndex);
-  };
-
-  const handlePlayNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPlayName(e.target.value);
-  };
-
-  const isDuplicatePlayName = (playName: string, playbook: Playbook): boolean => {
-    for (const play of playbook.plays) {
-      if (play.name === playName) return true;
+  const isDuplicatePlayNameExcludingIndex = (playName: string, playbook: Playbook, excludeIndex: number): boolean => {
+    for (let i = 0; i < playbook.plays.length; i++) {
+      const play = playbook.plays[i];
+      if (play.name === playName && i !== excludeIndex) return true;
     }
     return false;
   }
 
-  const updatePlaybook = async () => {
+  const updateLocalPlaybook = async () => {
     if (!playbook) return;
     const id = playbook.id;
     if (!id) return;
 
     try {
-      const playbookRef = doc(db, "Playbook", id); // Reference to the specific document
-      const playbookSnapshot = await getDoc(playbookRef); // Fetch the document
+      const playbookRef = doc(db, "Playbook", id);
+      const playbookSnapshot = await getDoc(playbookRef);
 
       if (playbookSnapshot.exists()) {
         const playbookData = playbookSnapshot.data();
-        // Assuming the document has fields 'name' and 'plays'
         const fetchedPlaybook = new Playbook(playbookData.name, playbookData.plays, id);
         setCurrentPlaybook(fetchedPlaybook);
       } else {
@@ -236,21 +199,44 @@ const PlayPanel: React.FC<PlayPanelProps> = ({ play, playbook, setCurrentPlayboo
       alert("No playbook selected");
       return;
     }
-    if (isDuplicatePlayName(playName, playbook)) {
-      alert("Duplicate Play Name");
-      return;
-    }
     const play = new Play(
       playName,
       lodash.cloneDeep(players),
       formationOptions[currentFormationIndex].id
     );
-    playbook.addPlay(play);
+
+    if (isDuplicatePlayNameExcludingIndex(playName, playbook, playId)) {
+      alert("Duplicate Play Name");
+      return;
+    }
+
+    if (playId === -1) { // we're making a new play
+      playbook.addPlay(play);
+    } else { // we're modifying an existing play
+      playbook.updatePlay(playId, play);
+    }
     await playbook.save();
-    await updatePlaybook();
-    completeReset();
-    setPlayName("");
+    await updateLocalPlaybook();
+    totalReset();
     alert("Play saved successfully");
+  };
+
+  const handleSpeedChange = (index: number, newSpeed: number) => {
+    const updatedPlayers = [...players];
+    updatedPlayers[index].setSpeed(newSpeed);
+    setPlayers(updatedPlayers);
+  };
+
+  const closeFormationsModal = () => {
+    setFormationsModalOpen(false);
+  };
+
+  const handleFormationSelect = (formationIndex: number) => {
+    console.log("Selected formation: ", formationOptions[formationIndex].name);
+    setCurrentFormationIndex(formationIndex);
+    const newPlayers = formationOptions[formationIndex].players.map((playerMetadata: PlayerMetadata) => new Player(playerMetadata.originX, playerMetadata.originY, playerMetadata.speed));
+    setPlayers(newPlayers);
+    setStrokeColors(newPlayers.map((player) => player.color));
   };
 
   return (
@@ -263,17 +249,11 @@ const PlayPanel: React.FC<PlayPanelProps> = ({ play, playbook, setCurrentPlayboo
           value={playName}
           onChange={handlePlayNameChange}
         />
+
         <div className="svg-container">
           <div className="formation-button" onClick={openFormationsModal}>
             Formations
           </div>
-          <div
-            className="plus-button"
-            onClick={(e) => handleAddPlayerButtonClick(e)}
-          >
-            +
-          </div>
-          {addPlayerOnClick && <div className="overlay"></div>}
           <svg
             width="600"
             height="400"
@@ -291,7 +271,7 @@ const PlayPanel: React.FC<PlayPanelProps> = ({ play, playbook, setCurrentPlayboo
               strokeWidth="5"
             />
 
-            {players.map((player, index) => (
+            {players.map((player: Player, index) => (
               <path
                 key={`path-${index}`}
                 d={player.getPathD()}
@@ -308,11 +288,6 @@ const PlayPanel: React.FC<PlayPanelProps> = ({ play, playbook, setCurrentPlayboo
                 r="10"
                 fill={index === activePlayerIndex ? "yellow" : "black"}
                 onClick={(e) => selectPlayer(e, index)}
-                onDoubleClick={() => {
-                  const updatedColors = [...strokeColors];
-                  updatedColors[index] = "yellow";
-                  setStrokeColors(updatedColors);
-                }}
                 animate={{
                   cx: player.animation.cx,
                   cy: player.animation.cy,
@@ -329,22 +304,14 @@ const PlayPanel: React.FC<PlayPanelProps> = ({ play, playbook, setCurrentPlayboo
             <button onClick={execute} className="button">
               Run routes
             </button>
-            <button onClick={resetState} className="button" id="reset-button">
-              Reset
-            </button>
-            <button
-              onClick={completeReset}
-              className="button"
-              id="reset-button"
-            >
-              Complete Reset
+            <button onClick={backtoLOS} className="button" id="reset-button">
+              Come back
             </button>
             <button onClick={savePlay} className="button" id="save-button">
               Save Play
             </button>
           </div>
         </div>
-
         <div className="speed-controls">
           {players.map((_, index) => (
             <div key={index}>
@@ -368,13 +335,13 @@ const PlayPanel: React.FC<PlayPanelProps> = ({ play, playbook, setCurrentPlayboo
           <FormationsModal
             currentFormationIndex={currentFormationIndex}
             formations={formationOptions}
-            onClose={closeModal}
+            onClose={closeFormationsModal}
             onSelectFormation={handleFormationSelect}
           />
         )}
       </div>
     </div>
   );
-}
+};
 
 export default PlayPanel;

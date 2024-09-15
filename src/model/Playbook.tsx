@@ -44,4 +44,8 @@ export class Playbook {
             }
         }
     }
+
+    updatePlay(index: number, play: Play) {
+        this.plays[index] = play;
+    }
 }

@@ -12,13 +12,6 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.component-container {
-  display: flex;
-  justify-content: center; /* Centers horizontally */
-  align-items: center; /* Centers vertically */
-  height: 100vh; /* Ensures the parent container takes up the full height of the viewport */
-}
-
 .speed-controls {
   color: whitesmoke;
 }
@@ -141,16 +134,4 @@
 
 .slider:active::-moz-range-thumb {
   background: #59d35d;
-}
-
-.play-name-input {
-  color: white;
-  background: none;
-  border: none;
-  outline: none;
-  font-size: 24px;
-  text-align: center;
-  font-family: Montserrat, 'sans-serif';
-  padding-top: 1rem;
-  width: 100%;
 }

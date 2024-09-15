@@ -16,8 +16,8 @@ const PlaysDisplay: React.FC<PlaysDisplayProps> = ({
     setCurrentPlaybook
 }) => {
     const navigate = useNavigate();
-    const [showPlayPanelForCreate, setShowPlayPanelForCreate] = useState<boolean>(true);
-    const [currentPlay, setCurrentPlay] = useState<Play>();
+    const [currentPlayId, setCurrentPlayId] = useState<number>(-1);
+
 
     useEffect(() => {
         if (!currentPlaybook) {
@@ -26,13 +26,11 @@ const PlaysDisplay: React.FC<PlaysDisplayProps> = ({
     }, [])
 
     const addPlay = () => {
-        setCurrentPlay(undefined);
-        setShowPlayPanelForCreate(true);
+        setCurrentPlayId(-1);
     };
 
-    const selectPlay = (play: Play) => {
-        setShowPlayPanelForCreate(false);
-        setCurrentPlay(play);
+    const selectPlay = (play: Play, index: number) => {
+        setCurrentPlayId(index);
     };
 
     const backToPlaybooks = () => {
@@ -57,11 +55,11 @@ const PlaysDisplay: React.FC<PlaysDisplayProps> = ({
                 </div>
                 <div className="plays-list-scrollable">
                     <div className="plays-list">
-                        {currentPlaybook.plays.map((play: Play) => (
+                        {currentPlaybook.plays.map((play: Play, index: number) => (
                             <div
                                 key={play.name}
-                                className={`play-card ${currentPlay === play ? 'selected-play' : ''}`}
-                                onClick={() => selectPlay(play)}
+                                className={`play-card ${currentPlayId === index ? 'selected-play' : ''}`}
+                                onClick={() => selectPlay(play, index)}
                             >
                                 <h3>{play.name}</h3>
                             </div>
@@ -69,8 +67,12 @@ const PlaysDisplay: React.FC<PlaysDisplayProps> = ({
                     </div>
                 </div>
             </div>
-            {showPlayPanelForCreate && <PlayPanel playbook={currentPlaybook} play={undefined} setCurrentPlaybook={setCurrentPlaybook} />}
-            {currentPlay && <PlayPanel playbook={currentPlaybook} play={currentPlay} setCurrentPlaybook={setCurrentPlaybook} />}
+            {currentPlayId === -1 ?  (
+                    <PlayPanel playbook={currentPlaybook} play={new Play("", [], 0)} setCurrentPlaybook={setCurrentPlaybook} playId={currentPlayId}/>
+                ) : (
+                    <PlayPanel playbook={currentPlaybook} play={currentPlaybook.plays[currentPlayId]} setCurrentPlaybook={setCurrentPlaybook} playId={currentPlayId}/>
+                )
+            }
         </div>
     );
 };

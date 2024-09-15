@@ -11,13 +11,29 @@ class Player {
     speed: number;
     defaultColor: string = "red";
 
-    constructor(originX: number, originY: number, speed: number = 100) {
+    constructor(originX: number, originY: number, speed: number = 100, path: Point[] = []) {
         this.origin = { x: originX, y: originY };
         this.position = { x: originX, y: originY };
         this.animation = { cx: [originX], cy: [originY], duration: 2 }; // Default duration
-        this.path = [];
+        this.path = path;
         this.speed = speed;
         this.color = this.defaultColor;
+    }
+
+    getPathD(): string {
+        if (this.path.length === 0) return "";
+
+        const [start, ...points] = this.path;
+        return `M${start.x},${start.y} ${points
+            .map((point) => `L${point.x},${point.y}`)
+            .join(" ")}`;
+    }
+
+    getPath(): RouteAnimation {
+        return {
+            cx: this.path.map((point) => point.x),
+            cy: this.path.map((point) => point.y),
+        };
     }
 
     startDrawing(x: number, y: number): void {
@@ -49,21 +65,6 @@ class Player {
         }
     }
 
-    getPathD(): string {
-        if (this.path.length === 0) return "";
-
-        const [start, ...points] = this.path;
-        return `M${start.x},${start.y} ${points
-            .map((point) => `L${point.x},${point.y}`)
-            .join(" ")}`;
-    }
-
-    getPath(): RouteAnimation {
-        return {
-            cx: this.path.map((point) => point.x),
-            cy: this.path.map((point) => point.y),
-        };
-    }
 
     setRouteAnimation(cx: number[], cy: number[], duration: number) {
         this.animation = { cx, cy, duration };
